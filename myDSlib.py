@@ -1,4 +1,4 @@
-# Ignore warning messages
+# Ignore warning messages only
 import warnings
 warnings.filterwarnings("ignore")
 
