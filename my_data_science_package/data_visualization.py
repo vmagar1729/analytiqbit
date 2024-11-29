@@ -119,7 +119,7 @@ def plot_binned_features(data, features, status, bins=5, title=None):
     """
     # Create a figure with subplots
     num_features = len(features)
-    fig, axes = plt.subplots(nrows=num_features, ncols=1, figsize=(8, 5 * num_features))
+    fig, axes = plt.subplots(nrows=num_features, ncols=1, figsize=(15, 10 * num_features))
     fig.suptitle(title if title else f"Features vs {status}", fontsize=16)
 
     # Ensure axes is iterable for a single feature
@@ -145,9 +145,9 @@ def plot_binned_features(data, features, status, bins=5, title=None):
         sns.barplot(data=binned_data, x='feature_bin', y=status, ax=ax)
 
         # Add title and labels
-        ax.set_title(f"Leads converted by {feature}")
+        ax.set_title(f"Defaults by {feature}")
         ax.set_xlabel(f"{feature}")
-        ax.set_ylabel(f"Converted")
+        ax.set_ylabel(f"Defaulted")
 
         # Set x-axis tick labels
         ax.set_xticks(range(len(bin_labels)))
