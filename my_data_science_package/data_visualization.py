@@ -1,18 +1,24 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 
 def histogram_boxplot(data, feature, figsize=(12, 7), kde=True, bins=None):
     """
     Boxplot and histogram combined with automatic bins and x-axis ticks.
     Ensures the x-axis starts at zero.
 
-    data: DataFrame
-    feature: Column in the DataFrame
-    figsize: Size of the figure (default (12, 7))
-    kde: Whether to show density curve (default True)
-    bins: Number of bins or sequence of bin edges for histogram (default None)
+    Parameters:
+    - data: DataFrame
+    - feature: Column in the DataFrame
+    - figsize: Size of the figure (default (12, 7))
+    - kde: Whether to show density curve (default True)
+    - bins: Number of bins or sequence of bin edges for histogram (default None)
     """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import numpy as np
+
     # Create the subplots for boxplot and histogram
     f2, (ax_box2, ax_hist2) = plt.subplots(
         nrows=2,      # Number of rows of the subplot grid = 2
@@ -28,11 +34,19 @@ def histogram_boxplot(data, feature, figsize=(12, 7), kde=True, bins=None):
     if bins is None:
         q75, q25 = data[feature].quantile([0.75, 0.25])  # Interquartile range
         iqr = q75 - q25
-        bin_width = 2 * iqr / (len(data[feature]) ** (1 / 3))  # Freedman-Diaconis rule
-        bins = max(1, int((data[feature].max() - data[feature].min()) / bin_width))  # Ensure at least 1 bin
+        if len(data[feature]) == 0:  # Handle empty feature
+            raise ValueError(f"Feature '{feature}' contains no data.")
+        if data[feature].max() - data[feature].min() == 0:  # Handle zero range
+            bins = 1
+        else:
+            bin_width = 2 * iqr / (len(data[feature]) ** (1 / 3))
+            if bin_width <= 0:  # Handle zero or negative bin width
+                bin_width = 1  # Default fallback
+            bins = int((data[feature].max() - data[feature].min()) / bin_width)
+            bins = max(1, bins)  # Ensure at least 1 bin
 
     # Create the histogram
-    sns.histplot(data=data, x=feature, kde=kde, ax=ax_hist2, bins=bins, palette="winter")
+    sns.histplot(data=data, x=feature, kde=kde, ax=ax_hist2, bins=bins, color="blue")
 
     # Add mean and median to the histogram
     ax_hist2.axvline(data[feature].mean(), color="green", linestyle="--", label="Mean")
