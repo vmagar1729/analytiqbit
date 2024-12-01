@@ -21,17 +21,23 @@ def summarize_dataframe(sdf):
     }).reset_index(drop=True)
 
 
+from sklearn.impute import KNNImputer
+from sklearn.experimental import enable_iterative_imputer  # Needed for IterativeImputer
+from sklearn.impute import IterativeImputer
+from sklearn.preprocessing import LabelEncoder
+
 def impute_missing_values(df):
     """
     Imputes missing values in a dataset using KNN for low/moderate missingness 
     and Iterative Imputer for high missingness. Categorical columns are encoded 
-    using LabelEncoder.
+    using LabelEncoder and can be converted back to their original values.
 
     Parameters:
     df (pd.DataFrame): The input dataset with missing values.
 
     Returns:
     pd.DataFrame: The dataset with missing values imputed.
+    dict: A dictionary of LabelEncoder objects for categorical columns.
     """
 
     # Create a copy of the DataFrame to avoid modifying the original
@@ -66,9 +72,25 @@ def impute_missing_values(df):
     iterative_imputer = IterativeImputer(max_iter=10, random_state=42)
     df_imputed[columns_iterative] = iterative_imputer.fit_transform(df_imputed[columns_iterative])
 
-    # Return the fully imputed dataset
-    return df_imputed
+    # Return the fully imputed dataset and label encoders
+    return df_imputed, label_encoders
 
+
+def decode_categorical_columns(df, label_encoders):
+    """
+    Decodes categorical columns back to their original values using LabelEncoder objects.
+
+    Parameters:
+    df (pd.DataFrame): The DataFrame with encoded categorical columns.
+    label_encoders (dict): A dictionary of LabelEncoder objects for each categorical column.
+
+    Returns:
+    pd.DataFrame: The DataFrame with categorical columns decoded to their original values.
+    """
+    df_decoded = df.copy()
+    for col, le in label_encoders.items():
+        df_decoded[col] = le.inverse_transform(df_decoded[col].astype(int))
+    return df_decoded
 
 
 def calculate_corr_and_vif(dataframe):

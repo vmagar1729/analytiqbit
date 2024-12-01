@@ -117,17 +117,22 @@ def plot_binned_features(data, features, status, bins=5, title=None):
     Returns:
         None: Displays the subplots.
     """
-    # Create a figure with subplots
+    # Calculate the grid dimensions
+    n_rows, n_cols = 6, 2  # Fixed 4 rows and 3 columns
+    total_subplots = n_rows * n_cols
     num_features = len(features)
-    fig, axes = plt.subplots(nrows=num_features, ncols=1, figsize=(15, 10 * num_features))
+
+    # Create a figure with subplots
+    fig, axes = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(20, 15))
     fig.suptitle(title if title else f"Features vs {status}", fontsize=16)
 
-    # Ensure axes is iterable for a single feature
-    if num_features == 1:
-        axes = [axes]
+    # Flatten axes for easy indexing
+    axes = axes.flatten()
 
     # Iterate over features and create plots
-    for ax, feature in zip(axes, features):
+    for i, feature in enumerate(features):
+        ax = axes[i]
+
         # Group by feature and calculate the sum of the status variable
         grouped_data = data.groupby(feature)[status].sum().reset_index()
 
@@ -145,17 +150,30 @@ def plot_binned_features(data, features, status, bins=5, title=None):
         sns.barplot(data=binned_data, x='feature_bin', y=status, ax=ax)
 
         # Add title and labels
-        ax.set_title(f"Defaults by {feature}")
+        ax.set_title(f"{feature} vs {status}")
         ax.set_xlabel(f"{feature}")
-        ax.set_ylabel(f"Defaulted")
+        ax.set_ylabel(f"{status}")
 
         # Set x-axis tick labels
         ax.set_xticks(range(len(bin_labels)))
-        ax.set_xticklabels(bin_labels, rotation=90)
+        ax.set_xticklabels(bin_labels, rotation=45)
+
+    # Turn off extra subplots
+    for i in range(num_features, total_subplots):
+        axes[i].axis('off')
 
     # Adjust layout and show the plot
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
+
+# Example usage
+# df = pd.DataFrame({
+#     "feature1": [1, 2, 3, 4, 5, 6, 7, 8],
+#     "feature2": [10, 20, 30, 40, 50, 60, 70, 80],
+#     "feature3": [5, 4, 3, 2, 1, 0, 1, 2],
+#     "status": [0, 1, 0, 1, 0, 1, 1, 0]
+# })
+# plot_binned_features(data=df, features=["feature1", "feature2", "feature3"], status="status", bins=3)
 
 
 def metrics_score(actual, predicted):

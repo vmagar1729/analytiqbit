@@ -20,20 +20,43 @@ def metrics_score(actual, predicted):
     plt.show()
 
 
-def chi_squared_test(data, cat_cols):
-    # List to store results for each pair of features
+def chi_squared_test(data, target, bins=5):
+    """
+    Perform the Chi-Squared test for independence between all features
+    and the target variable, handling both categorical and continuous features.
+
+    Parameters:
+        data (pd.DataFrame): The input dataset.
+        target (str): The name of the target variable.
+        bins (int): Number of bins to discretize continuous features. Default is 5.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing features, their P-values, 
+                      and whether they are significant.
+    """
+    # Separate target column
+    target_data = data[target]
+    features = data.drop(columns=[target])
+
+    # List to store results for each feature
     results = []
 
-    # Loop through each pair of categorical columns
-    for feature1, feature2 in combinations(cat_cols, 2):
-        # Create a contingency table for the current pair of features
-        contingency_table = pd.crosstab(data[feature1], data[feature2])
+    for feature in features.columns:
+        if features[feature].dtype in ['object', 'category']:
+            # Categorical feature: Use directly
+            feature_data = features[feature]
+        else:
+            # Continuous feature: Discretize into bins
+            feature_data = pd.cut(features[feature], bins=bins, labels=False)
 
-        # Perform the Chi-squared test for independence
+        # Create a contingency table for the current feature and target
+        contingency_table = pd.crosstab(feature_data, target_data)
+
+        # Perform the Chi-Squared test for independence
         chi2, p, dof, expected = chi2_contingency(contingency_table)
 
-        # Append the feature pair and p-value to the results list
-        results.append({'Feature 1': feature1, 'Feature 2': feature2, 'P-value': p})
+        # Append the feature and p-value to the results list
+        results.append({'Feature': feature, 'P-value': p, 'Significant': p < 0.05})
 
     # Convert results to a DataFrame for better visualization
     results_df = pd.DataFrame(results)
