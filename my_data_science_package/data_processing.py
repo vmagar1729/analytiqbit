@@ -1,10 +1,10 @@
-
 import pandas as pd
 import numpy as np
 from sklearn.impute import KNNImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.preprocessing import LabelEncoder
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def summarize_dataframe(sdf):
@@ -68,3 +68,35 @@ def impute_missing_values(df):
 
     # Return the fully imputed dataset
     return df_imputed
+
+
+
+def calculate_corr_and_vif(dataframe):
+    """
+    Calculate the correlation matrix and Variance Inflation Factor (VIF)
+    for numerical predictor columns in a given DataFrame, excluding the target variable.
+
+    Parameters:
+    dataframe (pd.DataFrame): The input DataFrame.
+    target_variable (str): The name of the target variable to exclude.
+
+    Returns:
+    tuple: A tuple containing the correlation matrix (pd.DataFrame)
+           and VIF values (pd.DataFrame).
+    """
+    
+    # Select only numerical columns
+    numeric_df = dataframe.select_dtypes(include=[np.number])
+    
+    # Calculate the correlation matrix
+    corr_matrix = numeric_df.corr()
+    
+    # Calculate VIF for each numerical column
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = numeric_df.columns
+    vif_data["VIF"] = [
+        variance_inflation_factor(numeric_df.values, i)
+        for i in range(numeric_df.shape[1])
+    ]
+    
+    return corr_matrix, vif_data
