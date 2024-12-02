@@ -157,7 +157,14 @@ def plot_binned_features(data, features, status, bins=5, title=None):
         # Set x-axis tick labels
         ax.set_xticks(range(len(bin_labels)))
         ax.set_xticklabels(bin_labels, rotation=45)
-
+        total = grouped_data[status].sum()
+        for bar in ax.patches:
+            height = bar.get_height()
+            percentage = (height / total) * 100  # Calculate percentage
+            if percentage > 0:
+                ax.text(bar.get_x() + bar.get_width() / 2, height, f'{percentage:.1f}%', ha='center', va='bottom', fontsize=10)
+        sns.despine()
+        
     # Turn off extra subplots
     for i in range(num_features, total_subplots):
         axes[i].axis('off')

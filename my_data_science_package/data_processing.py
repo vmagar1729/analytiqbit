@@ -26,6 +26,7 @@ from sklearn.experimental import enable_iterative_imputer  # Needed for Iterativ
 from sklearn.impute import IterativeImputer
 from sklearn.preprocessing import LabelEncoder
 
+
 def impute_missing_values(df):
     """
     Imputes missing values in a dataset using KNN for low/moderate missingness 
@@ -67,6 +68,9 @@ def impute_missing_values(df):
     # KNN Imputation for low/moderate missingness
     knn_imputer = KNNImputer(n_neighbors=5)
     df_imputed[columns_knn] = knn_imputer.fit_transform(df_imputed[columns_knn])
+    df_imputed['loan_request_reason'] = df_imputed['loan_request_reason'].round().astype(int)
+    df_imputed['applicant_job_type'] = df_imputed['applicant_job_type'].round().astype(int)
+
 
     # Iterative Imputer for high missingness
     iterative_imputer = IterativeImputer(max_iter=10, random_state=42)
