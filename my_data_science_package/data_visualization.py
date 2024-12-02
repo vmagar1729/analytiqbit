@@ -2,6 +2,60 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import math
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.tree import plot_tree
+
+
+def plot_grouped_barplots(data, features, target, figsize=(15, 6)):
+    """
+    Plots grouped barplots for a list of features against a target variable.
+
+    Parameters:
+        data (pd.DataFrame): The input dataset.
+        features (list): List of features to group by.
+        target (str): The target variable to sum for each group.
+        figsize (tuple): Size of each subplot figure. Default is (15, 6).
+
+    Returns:
+        None: Displays the plots.
+    """
+    # Determine grid size for subplots
+    num_features = len(features)
+    n_cols = 3  # Number of columns per row
+    n_rows = math.ceil(num_features / n_cols)
+
+    # Create subplots
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(figsize[0], figsize[1] * n_rows))
+    axes = axes.flatten()  # Flatten the axes array for easy indexing
+
+    # Iterate over features and create barplots
+    for i, feature in enumerate(features):
+        # Group and sum data
+        summed_data = data.groupby(feature)[target].sum().reset_index()
+
+        # Create barplot
+        sns.barplot(x=feature, y=target, data=summed_data, ax=axes[i])
+        axes[i].set_title(f'Sum of {target} by {feature}')
+        axes[i].set_xlabel(feature)
+        axes[i].set_ylabel(f'Sum of {target}')
+        axes[i].tick_params(axis='x', rotation=90)  # Rotate x-axis labels for better readability
+        total = summed_data[target].sum()
+        for bar in axes[i].patches:
+            height = bar.get_height()
+            percentage = (height / total) * 100  # Calculate percentage
+            if percentage > 0:
+                axes[i].text(bar.get_x() + bar.get_width() / 2, height, f'{percentage:.1f}%', ha='center', va='bottom', fontsize=10)
+        sns.despine()
+
+    # Turn off any unused subplots
+    for j in range(num_features, len(axes)):
+        axes[j].axis('off')
+
+    # Adjust layout and display the plots
+    plt.tight_layout()
+    plt.show()
+
 
 def histogram_boxplot(data, feature, figsize=(12, 7), kde=True, bins=None):
     """
@@ -15,9 +69,6 @@ def histogram_boxplot(data, feature, figsize=(12, 7), kde=True, bins=None):
     - kde: Whether to show density curve (default True)
     - bins: Number of bins or sequence of bin edges for histogram (default None)
     """
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import numpy as np
 
     # Create the subplots for boxplot and histogram
     f2, (ax_box2, ax_hist2) = plt.subplots(
@@ -164,7 +215,7 @@ def plot_binned_features(data, features, status, bins=5, title=None):
             if percentage > 0:
                 ax.text(bar.get_x() + bar.get_width() / 2, height, f'{percentage:.1f}%', ha='center', va='bottom', fontsize=10)
         sns.despine()
-        
+
     # Turn off extra subplots
     for i in range(num_features, total_subplots):
         axes[i].axis('off')
@@ -191,7 +242,7 @@ def metrics_score(actual, predicted):
       actual: The actual target values.
       predicted: The predicted target values.
     """
-    
+
     # Print the classification report
     print(classification_report(actual, predicted))
 

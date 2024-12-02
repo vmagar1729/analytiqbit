@@ -5,6 +5,7 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from fancyimpute import KNN
 
 
 def summarize_dataframe(sdf):
@@ -21,12 +22,6 @@ def summarize_dataframe(sdf):
     }).reset_index(drop=True)
 
 
-from sklearn.impute import KNNImputer
-from sklearn.experimental import enable_iterative_imputer  # Needed for IterativeImputer
-from sklearn.impute import IterativeImputer
-from sklearn.preprocessing import LabelEncoder
-
-
 def impute_missing_values(df):
     """
     Imputes missing values in a dataset using KNN for low/moderate missingness 
@@ -41,43 +36,39 @@ def impute_missing_values(df):
     dict: A dictionary of LabelEncoder objects for categorical columns.
     """
 
-    # Create a copy of the DataFrame to avoid modifying the original
-    df_imputed = df.copy()
-
-    # Encode categorical columns
-    categorical_columns = ['loan_request_reason', 'applicant_job_type']
-    label_encoders = {}
-    for col in categorical_columns:
-        le = LabelEncoder()
-        df_imputed[col] = df_imputed[col].astype(str)  # Convert to string to handle NaN as a category
-        df_imputed[col] = le.fit_transform(df_imputed[col])
-        label_encoders[col] = le
-
-    # Define column groups for different imputation methods
+# Column segregation
     columns_knn = [
-        'mortgage_amount_due', 'property_current_value', 
-        'loan_request_reason', 'applicant_job_type', 
+        'mortgage_amount_due', 'property_current_value',
+        'loan_request_reason', 'applicant_job_type',
         'age_of_oldest_credit_line', 'existing_credit_lines'
     ]
     columns_iterative = [
-        'debt_to_income_ratio', 'major_derogatory_reports', 
-        'delinquent_credit_lines', 'years_at_present_job', 
+        'debt_to_income_ratio', 'major_derogatory_reports',
+        'delinquent_credit_lines', 'years_at_present_job',
         'recent_credit_inquiries'
     ]
+    
+    # Encode categorical columns for KNN
+    categorical_columns = ['loan_request_reason', 'applicant_job_type']
+    # Convert object columns to category dtype before encoding
+    original_categories = {}
+    for col in categorical_columns:
+        df[col] = df[col].astype('category')  # Convert to category
+        original_categories[col] = df[col].cat.categories  # Save the original categories
 
-    # KNN Imputation for low/moderate missingness
-    knn_imputer = KNNImputer(n_neighbors=5)
-    df_imputed[columns_knn] = knn_imputer.fit_transform(df_imputed[columns_knn])
-    df_imputed['loan_request_reason'] = df_imputed['loan_request_reason'].round().astype(int)
-    df_imputed['applicant_job_type'] = df_imputed['applicant_job_type'].round().astype(int)
-
-
-    # Iterative Imputer for high missingness
-    iterative_imputer = IterativeImputer(max_iter=10, random_state=42)
-    df_imputed[columns_iterative] = iterative_imputer.fit_transform(df_imputed[columns_iterative])
+    for col in categorical_columns:
+        df[col] = df[col].astype('category').cat.codes.replace(-1, np.nan)  # Encode categories and handle NaN
+    
+    # Impute with KNN
+    knn_imputer = KNN(k=3)
+    df[columns_knn] = knn_imputer.fit_transform(df[columns_knn])
+    
+    # Impute with IterativeImputer
+    iterative_imputer = IterativeImputer(max_iter=10, random_state=42, verbose=0)
+    df[columns_iterative] = iterative_imputer.fit_transform(df[columns_iterative])
 
     # Return the fully imputed dataset and label encoders
-    return df_imputed, label_encoders
+    return df, original_categories
 
 
 def decode_categorical_columns(df, label_encoders):
