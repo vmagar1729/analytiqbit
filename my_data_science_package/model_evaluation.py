@@ -6,6 +6,7 @@ import pandas as pd
 from itertools import combinations
 from scipy.stats import chi2_contingency
 
+
 def metrics_score(actual, predicted):
     """
     Calculates and displays classification metrics and confusion matrix.
