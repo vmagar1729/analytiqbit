@@ -60,7 +60,7 @@ def impute_missing_values(df):
         df[col] = df[col].astype('category').cat.codes.replace(-1, np.nan)  # Encode categories and handle NaN
     
     # Impute with KNN
-    knn_imputer = KNN(k=3)
+    knn_imputer = KNN(k=3, verbose=False)
     df[columns_knn] = knn_imputer.fit_transform(df[columns_knn])
     
     # Impute with IterativeImputer
