@@ -54,3 +54,4 @@ coverage.xml
 .idea/
 *.swp
 *~
+data/data.csv

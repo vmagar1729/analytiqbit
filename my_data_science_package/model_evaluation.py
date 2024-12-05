@@ -14,8 +14,8 @@ def metrics_score(actual, predicted):
     print(classification_report(actual, predicted))
     cm = confusion_matrix(actual, predicted)
     plt.figure(figsize=(8, 5))
-    sns.heatmap(cm, annot=True, fmt='.2f', xticklabels=['Not Converted', 'Converted'],
-                yticklabels=['Not Converted', 'Converted'])
+    sns.heatmap(cm, annot=True, fmt='.2f', xticklabels=['Not defaulted', 'Defaulted'],
+                yticklabels=['Not Defaulted', 'Defaulted'])
     plt.ylabel('Actual')
     plt.xlabel('Predicted')
     plt.show()
