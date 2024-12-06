@@ -7,6 +7,24 @@ from itertools import combinations
 from scipy.stats import chi2_contingency
 
 
+# def metrics_score(actual, predicted):
+#     """
+#     Calculates and displays classification metrics and confusion matrix, with the plot rotated 90 degrees clockwise.
+#     """
+#     print(classification_report(actual, predicted))
+#     cm = confusion_matrix(actual, predicted)
+#     plt.figure(figsize=(8, 5))
+
+#     # Rotate the heatmap by swapping rows and columns
+#     sns.heatmap(cm.T, annot=True, fmt='.2f', xticklabels=['Not Defaulted', 'Defaulted'],
+#                 yticklabels=['Not Defaulted', 'Defaulted'], cbar=False)
+
+#     # Update axis labels to match the rotation
+#     plt.ylabel('Predicted')
+#     plt.xlabel('Actual')
+#     plt.show()
+
+
 def metrics_score(actual, predicted):
     """
     Calculates and displays classification metrics and confusion matrix.

@@ -6,6 +6,8 @@ from sklearn.impute import IterativeImputer
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from fancyimpute import KNN
+from sklearn.metrics.pairwise import nan_euclidean_distances
+from sklearn.neighbors import NearestNeighbors
 
 
 def summarize_dataframe(sdf):
