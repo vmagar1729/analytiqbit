@@ -1,0 +1,16 @@
+README.md
+setup.py
+my_data_science_package/__init__.py
+my_data_science_package/data_processing.py
+my_data_science_package/data_visualization.py
+my_data_science_package/model_evaluation.py
+my_data_science_package/utils.py
+my_data_science_package.egg-info/PKG-INFO
+my_data_science_package.egg-info/SOURCES.txt
+my_data_science_package.egg-info/dependency_links.txt
+my_data_science_package.egg-info/requires.txt
+my_data_science_package.egg-info/top_level.txt
+tests/test_data_processing.py
+tests/test_data_visualization.py
+tests/test_model_evaluation.py
+tests/test_utils.py
